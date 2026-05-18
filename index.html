@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAHAL STORE</title>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+scroll-behavior:smooth;
+}
+
+body{
+overflow-x:hidden;
+background:#000;
+color:white;
+}
+
+body.rtl {
+direction: rtl;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:1;
+}
+
+.overlay{
+position:fixed;
+inset:0;
+background:linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.9));
+z-index:2;
+}
+
+/* شريط التحكم العلوي */
+.top-controls {
+position: fixed;
+top: 25px;
+right: 40px;
+z-index: 9999;
+display: flex;
+gap: 15px;
+align-items: center;
+}
+
+body.rtl .top-controls {
+right: auto;
+left: 40px;
+}
+
+.lang-btn, .cart-icon-container {
+background: rgba(20, 20, 20, 0.9);
+border: 1px solid #333;
+padding: 12px 20px;
+border-radius: 4px;
+backdrop-filter: blur(10px);
+transition: 0.3s;
+cursor: pointer;
+color: white;
+font-weight: bold;
+font-size: 14px;
+display: flex;
+align-items: center;
+gap: 10px;
+box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.lang-btn:hover, .cart-icon-container:hover {
+border-color: white;
+transform: scale(1.05);
+}
+
+.cart-svg {
+width: 20px;
+height: 20px;
+fill: white;
+}
+
+.cart-count {
+background: white;
+color: black;
+font-weight: bold;
+font-size: 12px;
+padding: 2px 7px;
+border-radius: 50%;
+}
+
+/* التنبيه العائم عند إضافة منتج */
+.toast-notification {
+position: fixed;
+bottom: -100px;
+left: 50%;
+transform: translateX(-50%);
+background: #ffffff;
+color: #000000;
+padding: 15px 30px;
+font-weight: bold;
+border-radius: 4px;
+z-index: 10000;
+box-shadow: 0 5px 20px rgba(255,255,255,0.2);
+transition: bottom 0.4s ease, opacity 0.4s ease;
+opacity: 0;
+font-size: 14px;
+pointer-events: none;
+}
+.toast-notification.show {
+bottom: 40px;
+opacity: 1;
+}
+
+/* السلة الجانبية */
+.cart-sidebar {
+position: fixed;
+top: 0;
+right: -450px; 
+width: 400px;
+max-width: 100%;
+height: 100vh;
+background: #0a0a0a;
+border-left: 1px solid #222;
+z-index: 9995;
+padding: 30px;
+display: flex;
+flex-direction: column;
+transition: 0.4s ease;
+}
+
+body.rtl .cart-sidebar {
+right: auto;
+left: -450px;
+border-left: none;
+border-right: 1px solid #222;
+}
+
+.cart-sidebar.active {
+right: 0; 
+}
+body.rtl .cart-sidebar.active {
+left: 0;
+}
+
+.cart-sidebar-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 1px solid #222;
+padding-bottom: 15px;
+margin-bottom: 20px;
+}
+
+.close-cart {
+font-size: 28px;
+cursor: pointer;
+color: #666;
+transition: 0.3s;
+}
+
+.close-cart:hover {
+color: white;
+}
+
+.cart-items-list {
+flex: 1;
+overflow-y: auto;
+margin-bottom: 20px;
+}
+
+.cart-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: #111;
+border: 1px solid #222;
+padding: 12px;
+margin-bottom: 10px;
+font-size: 14px;
+}
+
+.remove-item-btn {
+background: transparent;
+border: none;
+color: #ff4444;
+cursor: pointer;
+}
+
+/* فورم بيانات العميل */
+.customer-info-form {
+border-top: 1px solid #222;
+padding-top: 15px;
+margin-bottom: 15px;
+}
+
+.form-title {
+font-size: 11px;
+color: #555;
+text-transform: uppercase;
+letter-spacing: 2px;
+margin-bottom: 10px;
+}
+
+.form-input {
+width: 100%;
+background: #111;
+border: 1px solid #222;
+color: white;
+padding: 12px;
+font-size: 13px;
+margin-bottom: 10px;
+outline: none;
+}
+
+.form-input:focus {
+border-color: white;
+}
+
+.cart-footer {
+border-top: 1px solid #222;
+padding-top: 15px;
+}
+
+.cart-total {
+display: flex;
+justify-content: space-between;
+font-size: 18px;
+font-weight: bold;
+margin-bottom: 15px;
+}
+
+.checkout-btn {
+width: 100%;
+padding: 14px;
+background: white;
+color: black;
+border: none;
+font-weight: bold;
+cursor: pointer;
+margin-bottom: 10px;
+}
+
+.clear-cart-btn {
+width: 100%;
+padding: 10px;
+background: transparent;
+border: 1px solid #ff4444;
+color: #ff4444;
+cursor: pointer;
+}
+
+/* الهيرو والصفحة الرئيسية */
+.hero{
+position:relative;
+z-index:3;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+text-align:center;
+padding:20px;
+}
+
+.logo{
+width:650px;
+max-width:90%;
+margin-bottom:20px;
+}
+
+.desc{
+margin-top:25px;
+color:#aaa;
+max-width:600px;
+font-size:18px;
+}
+
+.btn{
+margin-top:40px;
+padding:16px 50px;
+border:1px solid white;
+background:transparent;
+color:white;
+cursor:pointer;
+font-size:14px;
+}
+
+.btn:hover{
+background:white;
+color:black;
+}
+
+.products{
+position:relative;
+z-index:3;
+padding:120px 8%;
+background:#050505;
+}
+
+.products-title{
+text-align:center;
+font-size:50px;
+margin-bottom:70px;
+}
+
+.cards {
+display:grid;
+grid-template-columns: repeat(3, 1fr);
+gap:35px;
+}
+
+.card{
+background:#111;
+border:1px solid #222;
+text-align: center;
+overflow:hidden;
+}
+
+.card img{
+width:100%;
+height:450px;
+object-fit: contain;
+background: #111;
+cursor:pointer;
+}
+
+/* صفحة تفاصيل المنتج المنفصلة */
+.product-page-section {
+position: relative;
+z-index: 3;
+padding: 100px 8% 120px 8%;
+background: #050505;
+min-height: 100vh;
+display: none; 
+}
+
+.product-page-section.active {
+display: block;
+}
+
+.back-to-shop-btn {
+background: transparent;
+border: none;
+color: #888;
+cursor: pointer;
+font-size: 14px;
+margin-bottom: 40px;
+}
+
+.product-container {
+display: grid;
+grid-template-columns: 1.1fr 0.9fr;
+gap: 60px;
+}
+
+/* برواز عارض الصور والـ Slider */
+.slider-wrapper {
+position: relative;
+width: 100%;
+height: 650px;
+border: 1px solid #222;
+overflow: hidden;
+background: #0d0d0d;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.main-product-display-img {
+width: 100%;
+height: 100%;
+object-fit: contain;
+transition: opacity 0.3s ease;
+}
+
+.slider-arrow {
+position: absolute;
+top: 50%;
+transform: translateY(-50%);
+background: rgba(0, 0, 0, 0.7);
+color: white;
+border: 1px solid #333;
+width: 50px;
+height: 50px;
+font-size: 24px;
+font-weight: bold;
+cursor: pointer;
+display: flex;
+justify-content: center;
+align-items: center;
+transition: 0.3s;
+user-select: none;
+z-index: 10;
+}
+
+.slider-arrow:hover {
+background: white;
+color: black;
+border-color: white;
+}
+
+.arrow-left { left: 15px; }
+.arrow-right { right: 15px; }
+
+/* نقاط التوجيه السفلية للصور */
+.slider-dots {
+position: absolute;
+bottom: 15px;
+left: 50%;
+transform: translateX(-50%);
+display: flex;
+gap: 6px;
+z-index: 10;
+flex-wrap: wrap;
+justify-content: center;
+width: 85%;
+}
+
+.slider-dot {
+width: 8px;
+height: 8px;
+background: rgba(255,255,255,0.3);
+border-radius: 50%;
+cursor: pointer;
+transition: 0.3s;
+}
+
+.slider-dot.active {
+background: #fff;
+transform: scale(1.25);
+}
+
+.product-info-panel h2 {
+font-size: 42px;
+margin-bottom: 15px;
+}
+
+.page-price {
+font-size: 26px;
+margin-bottom: 30px;
+border-bottom: 1px solid #222;
+padding-bottom: 20px;
+}
+
+.size-section {
+margin-bottom: 35px;
+}
+
+.size-options {
+display: flex;
+gap: 10px;
+}
+
+.size-opt {
+background: transparent;
+border: 1px solid #222;
+color: #fff;
+width: 45px;
+height: 45px;
+cursor: pointer;
+}
+
+.size-opt.active {
+background: #fff;
+color: #000;
+font-weight: bold;
+}
+
+.action-buttons-group {
+display: flex;
+flex-direction: column;
+gap: 12px;
+margin-bottom: 40px;
+}
+
+.page-buy-now-btn {
+width: 100%;
+padding: 18px;
+background: #fff;
+color: #000;
+border: 1px solid #fff;
+font-size: 14px;
+font-weight: bold;
+cursor: pointer;
+letter-spacing: 2px;
+transition: 0.3s;
+}
+
+.page-buy-now-btn:hover {
+background: #ddd;
+}
+
+.page-add-to-cart-btn {
+width: 100%;
+padding: 18px;
+background: transparent;
+border: 1px solid #fff;
+color: #fff;
+font-size: 14px;
+font-weight: bold;
+cursor: pointer;
+letter-spacing: 2px;
+transition: 0.3s;
+}
+
+.page-add-to-cart-btn:hover {
+background: rgba(255, 255, 255, 0.1);
+}
+
+.payment-section {
+border-top: 1px solid #222;
+padding-top: 30px;
+}
+
+.payment-title {
+margin-bottom: 15px;
+font-size: 14px;
+letter-spacing: 1px;
+color: #888;
+}
+
+.badges-container {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.method-badge {
+background: #111;
+border: 1px solid #222;
+padding: 10px 15px;
+font-size: 11px;
+color: #aaa;
+text-align: center;
+font-weight: bold;
+cursor: pointer;
+transition: 0.3s;
+}
+
+.method-badge.selected {
+border-color: #fff;
+color: #fff;
+background: #222;
+}
+
+.related-products-section {
+margin-top: 100px;
+border-top: 1px solid #222;
+padding-top: 60px;
+}
+
+.related-title {
+font-size: 28px;
+margin-bottom: 40px;
+text-align: center;
+letter-spacing: 2px;
+}
+
+footer{
+position:relative;
+z-index:3;
+padding:50px;
+text-align:center;
+border-top:1px solid #222;
+background:black;
+color:#777;
+}
+
+@media(max-width:992px){
+.cards, .product-container { grid-template-columns: 1fr; }
+.slider-wrapper { height: 450px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div class="overlay"></div>
+
+<div class="top-controls">
+  <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">العربية</button>
+  <div class="cart-icon-container" onclick="toggleCart(true)">
+    <svg class="cart-svg" viewBox="0 0 24 24">
+      <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+    </svg>
+    <span class="cart-count" id="cartCount">0</span>
+  </div>
+</div>
+
+<div class="toast-notification" id="toastNotification">🛒 Added to cart successfully!</div>
+
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-sidebar-header">
+    <h3 id="cartTitle">YOUR CART</h3>
+    <span class="close-cart" onclick="toggleCart(false)">&times;</span>
+  </div>
+  <div class="cart-items-list" id="cartItemsList"></div>
+  <div class="customer-info-form">
+    <div class="form-title" id="formTitle">Shipping & Contact Details</div>
+    <input type="text" id="custName" class="form-input" placeholder="Full Name" required>
+    <input type="tel" id="custPhone" class="form-input" placeholder="Phone Number" required>
+    <input type="text" id="custAddress" class="form-input" placeholder="Shipping Address Details" required>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span id="totalWord">Total:</span>
+      <span id="cartTotalSum">0 EGP</span>
+    </div>
+    <button class="checkout-btn" id="submitOrderBtn" onclick="sendOrderToGmail()">SUBMIT ORDER</button>
+    <button class="clear-cart-btn" id="clearCartBtn" onclick="clearCart()">CLEAR CART</button>
+  </div>
+</div>
+
+<div id="mainShopPage">
+  <section class="hero">
+    <img src="logo.png" class="logo">
+    <div class="desc" id="heroDesc">Keep Going,<br>Your Journey Is Just Beginning</div>
+    <a href="#shop"><button class="btn" id="enterBtn">ENTER STORE</button></a>
+  </section>
+
+  <section class="products" id="shop">
+    <h1 class="products-title" id="collectionTitle">NEW COLLECTION</h1>
+    <div class="cards" id="mainCardsContainer"></div>
+  </section>
+</div>
+
+<section class="product-page-section" id="independentProductPage">
+  <button class="back-to-shop-btn" id="backBtn" onclick="returnToMainShop()">← BACK TO COLLECTION</button>
+  <div class="product-container">
+    <div class="slider-wrapper">
+      <button class="slider-arrow arrow-left" onclick="changeProductImage(-1)">‹</button>
+      <img id="pageProductImg" src="" class="main-product-display-img">
+      <button class="slider-arrow arrow-right" onclick="changeProductImage(1)">›</button>
+      <div class="slider-dots" id="sliderDotsContainer"></div>
+    </div>
+    <div class="product-info-panel">
+      <h2 id="pageProductTitle">Product Title</h2>
+      <div id="pageProductPrice" class="page-price">650 EGP</div>
+      <div class="size-section">
+        <div class="size-title" id="selectSizeTitle">Select Size</div>
+        <div class="size-options">
+          <button class="size-opt active" onclick="selectSize(this)">M</button>
+          <button class="size-opt" onclick="selectSize(this)">L</button>
+          <button class="size-opt" onclick="selectSize(this)">XL</button>
+          <button class="size-opt" onclick="selectSize(this)">XXL</button>
+        </div>
+      </div>
+      <div class="action-buttons-group">
+        <button class="page-buy-now-btn" id="buyNowBtn" onclick="addProductFromPageToCart(true)">BUY NOW</button>
+        <button class="page-add-to-cart-btn" id="addToCartBtn" onclick="addProductFromPageToCart(false)">ADD TO CART</button>
+      </div>
+      <div class="payment-section">
+        <div class="payment-title" id="paymentTitle">GUARANTEED SAFE CHECKOUT</div>
+        <div class="badges-container">
+          <div class="method-badge" onclick="selectPaymentMethod(this, 'Visa / Mastercard')" id="payVisa">VISA / MASTERCARD</div>
+          <div class="method-badge" onclick="selectPaymentMethod(this, 'Vodafone Cash')" id="payVodafone">VODAFONE CASH</div>
+          <div class="method-badge selected" onclick="selectPaymentMethod(this, 'Cash on Delivery')" id="pay1">CASH ON DELIVERY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="related-products-section">
+    <h3 class="related-title" id="relatedTitle">YOU MAY ALSO LIKE</h3>
+    <div class="cards" id="relatedCardsContainer"></div>
+  </div>
+</section>
+
+<footer>© 2026 RAHAL — ALL RIGHTS RESERVED</footer>
+
+<script>
+try {
+  emailjs.init("OYlLhPyLEJhJrsCTY");
+} catch(e) {
+  console.log("EmailJS Init log:", e);
+}
+
+let currentLang = "en"; 
+let selectedPaymentType = "Cash on Delivery"; 
+let selectedPageProductId = null; 
+let currentImageIndex = 0; 
+let cart = [];
+
+// 🎯 ضبط مصفوفة الصور يدوياً بالعدد الحقيقي والنهائي عشان ميزودش أي خانات فاضية
+const productsData = {
+  1: { 
+    id: 1, 
+    price: 650, 
+    // المنتج الأول: 5 صور
+    images: ["shirt1_1.jpg", "shirt1_2.jpg", "shirt1_3.jpg", "shirt1_4.jpg", "shirt1_5.jpg"],
+    titles: { en: "The Starry Journey Tee", ar: "تيشيرت ليلة نجوم راحل / فان جوخ أوفرسايز" }
+  },
+  2: { 
+    id: 2, 
+    price: 650, 
+    // المنتج الثاني: 5 صور
+    images: ["shirt2_1.jpg", "shirt2_2.jpg", "shirt2_3.jpg", "shirt2_4.jpg", "shirt2_5.jpg"],
+    titles: { en: "The Money Master Tee", ar: "تيشيرت العملة النقدية أوفرسايز" }
+  },
+  3: { 
+    id: 3, 
+    price: 650, 
+    // المنتج الثالث: 4 صور
+    images: ["shirt3_1.jpg", "shirt3_2.jpg", "shirt3_3.jpg", "shirt3_4.jpg"],
+    titles: { en: "Cherry Blossom Tee", ar: "تيشيرت زهر الكرز (ساكورا) أوفرسايز" }
+  }
+};
+
+const translations = {
+  en: {
+    langBtn: "العربية", heroDesc: "Keep Going,<br>Your Journey Is Just Beginning", enterBtn: "ENTER STORE",
+    collectionTitle: "NEW COLLECTION", backBtn: "← BACK TO COLLECTION", selectSizeTitle: "Select Size",
+    addToCartBtn: "ADD TO CART", buyNowBtn: "BUY NOW", paymentTitle: "GUARANTEED SAFE CHECKOUT", pay1: "CASH ON DELIVERY",
+    cartTitle: "YOUR CART", formTitle: "Shipping & Contact Details", placeholderName: "Full Name",
+    placeholderPhone: "Phone Number", placeholderAddress: "Shipping Address Details", totalWord: "Total:",
+    submitOrderBtn: "SUBMIT ORDER", clearCartBtn: "CLEAR CART", processing: "PROCESSING...",
+    successAlert: "🎉 Order placed successfully!", errorAlert: "🚨 Error sending order.", sizeWord: "Size", addedSuccess: "🛒 Added to cart!",
+    relatedTitle: "YOU MAY ALSO LIKE", payVisa: "VISA / MASTERCARD", payVodafone: "VODAFONE CASH"
+  },
+  ar: {
+    langBtn: "English", heroDesc: "استمر في السير،<br>رحلتك قد بدأت للتو", enterBtn: "دخول المتجر",
+    collectionTitle: "التشكيلة الجديدة", backBtn: "→ العودة للرئيسية", selectSizeTitle: "اختر المقاس",
+    addToCartBtn: "إضافة إلى السلة", buyNowBtn: "شراء الآن", paymentTitle: "الدفع الآمن المضمون", pay1: "الدفع عند الاستلام",
+    cartTitle: "سلة المشتريات", formTitle: "تفاصيل الشحن والاتصال", placeholderName: "الاسم بالكامل",
+    placeholderPhone: "رقم الهاتف", placeholderAddress: "عنوان الشحن", totalWord: "الإجمالي:",
+    submitOrderBtn: "تأكيد الطلب", clearCartBtn: "تفريغ السلة", processing: "جاري الإرسال...",
+    successAlert: "🎉 تم تسجيل طلبك بنجاح!", errorAlert: "🚨 حدث خطأ أثناء الإرسال.", sizeWord: "المقاس", addedSuccess: "🛒 تم إضافة المنتج!",
+    relatedTitle: "منتجات قد تعجبك أيضاً", payVisa: "فيزا / ماستركارد", payVodafone: "فودافون كاش"
+  }
+};
+
+function renderMainShopProducts() {
+  const container = document.getElementById("mainCardsContainer");
+  if(!container) return;
+  container.innerHTML = "";
+  Object.keys(productsData).forEach(key => {
+    const prod = productsData[key];
+    const currentTitle = prod.titles[currentLang];
+    container.innerHTML += `
+      <div class="card">
+        <img src="${prod.images[0]}" onclick="navigateToProductPage(${prod.id})">
+        <div class="card-content">
+          <h3 id="p${prod.id}-title" style="margin: 15px 0 10px 0;">${currentTitle}</h3>
+          <div style="font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px;">650 EGP</div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function toggleLanguage() {
+  currentLang = currentLang === "en" ? "ar" : "en";
+  document.body.classList.toggle("rtl", currentLang === "ar");
+  updateUILanguage();
+}
+
+function updateUILanguage() {
+  const t = translations[currentLang];
+  document.getElementById("langBtn").innerText = t.langBtn;
+  document.getElementById("heroDesc").innerHTML = t.heroDesc;
+  document.getElementById("enterBtn").innerText = t.enterBtn;
+  document.getElementById("collectionTitle").innerText = t.collectionTitle;
+  document.getElementById("backBtn").innerText = t.backBtn;
+  document.getElementById("selectSizeTitle").innerText = t.selectSizeTitle;
+  document.getElementById("addToCartBtn").innerText = t.addToCartBtn;
+  document.getElementById("buyNowBtn").innerText = t.buyNowBtn;
+  document.getElementById("paymentTitle").innerText = t.paymentTitle;
+  document.getElementById("payVisa").innerText = t.payVisa;
+  document.getElementById("payVodafone").innerText = t.payVodafone;
+  document.getElementById("pay1").innerText = t.pay1;
+  document.getElementById("cartTitle").innerText = t.cartTitle;
+  document.getElementById("formTitle").innerText = t.formTitle;
+  document.getElementById("custName").placeholder = t.placeholderName;
+  document.getElementById("custPhone").placeholder = t.placeholderPhone;
+  document.getElementById("custAddress").placeholder = t.placeholderAddress;
+  document.getElementById("totalWord").innerText = t.totalWord;
+  document.getElementById("submitOrderBtn").innerText = t.submitOrderBtn;
+  document.getElementById("clearCartBtn").innerText = t.clearCartBtn;
+  document.getElementById("relatedTitle").innerText = t.relatedTitle;
+  
+  Object.keys(productsData).forEach(key => {
+    const prod = productsData[key];
+    const el = document.getElementById(`p${prod.id}-title`);
+    if(el) el.innerText = prod.titles[currentLang];
+  });
+
+  if(selectedPageProductId) {
+    document.getElementById("pageProductTitle").innerText = productsData[selectedPageProductId].titles[currentLang];
+    renderRelatedProducts(selectedPageProductId);
+  }
+  updateCartUI();
+}
+
+const canvas = document.getElementById("bg"); const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+let stars = [];
+for(let i=0; i<800; i++){ stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, radius:Math.random()*1.6, opacity:Math.random(), speed:(Math.random()*0.015)+0.005}); }
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=> { s.opacity += s.speed; if(s.opacity>=1||s.opacity<=0.05) s.speed*=-1; ctx.beginPath(); ctx.arc(s.x,s.y,s.radius,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${s.opacity})`; ctx.fill(); });
+  requestAnimationFrame(animate);
+}
+animate();
+
+function navigateToProductPage(id) {
+  selectedPageProductId = id; 
+  currentImageIndex = 0; 
+  const product = productsData[id];
+  document.getElementById("pageProductTitle").innerText = product.titles[currentLang];
+  document.getElementById("pageProductPrice").innerText = "650 EGP";
+  updateSliderUI();
+  renderRelatedProducts(id);
+  document.getElementById("mainShopPage").style.display = "none";
+  document.getElementById("independentProductPage").classList.add("active");
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSliderUI() {
+  const product = productsData[selectedPageProductId];
+  if (!product || !product.images || product.images.length === 0) return;
+  document.getElementById("pageProductImg").src = product.images[currentImageIndex];
+  const dotsContainer = document.getElementById("sliderDotsContainer");
+  dotsContainer.innerHTML = "";
+  product.images.forEach((img, index) => {
+    dotsContainer.innerHTML += `<span class="slider-dot ${index === currentImageIndex ? 'active' : ''}" onclick="jumpToImage(${index})"></span>`;
+  });
+}
+
+function changeProductImage(direction) {
+  const product = productsData[selectedPageProductId];
+  if (!product || !product.images || product.images.length <= 1) return;
+  currentImageIndex += direction;
+  if(currentImageIndex >= product.images.length) currentImageIndex = 0;
+  if(currentImageIndex < 0) currentImageIndex = product.images.length - 1;
+  updateSliderUI();
+}
+
+function jumpToImage(index) {
+  currentImageIndex = index;
+  updateSliderUI();
+}
+
+function renderRelatedProducts(currentId) {
+  const container = document.getElementById("relatedCardsContainer");
+  if(!container) return;
+  container.innerHTML = "";
+  Object.keys(productsData).forEach(key => {
+    const prod = productsData[key];
+    if(prod.id !== currentId) {
+      container.innerHTML += `
+        <div class="card">
+          <img src="${prod.images[0]}" onclick="navigateToProductPage(${prod.id})">
+          <div class="card-content">
+            <h3 style="margin: 15px 0 10px 0;">${prod.titles[currentLang]}</h3>
+            <div style="font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px;">650 EGP</div>
+          </div>
+        </div>
+      `;
+    }
+  });
+}
+
+function returnToMainShop() { document.getElementById("independentProductPage").classList.remove("active"); document.getElementById("mainShopPage").style.display = "block"; selectedPageProductId = null; }
+function selectSize(btn) { btn.parentElement.querySelectorAll('.size-opt').forEach(o=>o.classList.remove('active')); btn.classList.add('active'); }
+function toggleCart(open) { const s = document.getElementById("cartSidebar"); if(open) s.classList.add("active"); else s.classList.remove("active"); }
+
+function selectPaymentMethod(element, methodValue) {
+  element.parentElement.querySelectorAll('.method-badge').forEach(b => b.classList.remove('selected'));
+  element.classList.add('selected');
+  selectedPaymentType = methodValue;
+}
+
+function addProductFromPageToCart(openCart) {
+  const p = productsData[selectedPageProductId]; 
+  const size = document.querySelector('.size-opt.active').innerText;
+  cart.push({ id: Date.now(), title: p.titles[currentLang], price: p.price, size: size, paymentMethod: selectedPaymentType });
+  updateCartUI();
+  if(openCart) { toggleCart(true); } 
+  else {
+    const toast = document.getElementById("toastNotification"); toast.innerText = translations[currentLang].addedSuccess; toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2000);
+  }
+}
+
+function updateCartUI() {
+  document.getElementById("cartCount").innerText = cart.length;
+  const list = document.getElementById("cartItemsList"); list.innerHTML = "";
+  let total = 0;
+  cart.forEach(item => {
+    total += item.price;
+    list.innerHTML += `<div class="cart-item"><div><h4>${item.title}</h4><span>${translations[currentLang].sizeWord}: ${item.size} - ${item.price} EGP</span></div><button class="remove-item-btn" onclick="removeItem(${item.id})">×</button></div>`;
+  });
+  document.getElementById("cartTotalSum").innerText = total + " EGP";
+}
+function removeItem(id) { cart = cart.filter(i=>i.id!==id); updateCartUI(); }
+function clearCart() { cart = []; updateCartUI(); }
+
+function sendOrderToGmail() {
+  const t = translations[currentLang];
+  if(cart.length === 0) { alert(currentLang === "en" ? "Your cart is empty!" : "السلة فارغة!"); return; }
+  const name = document.getElementById("custName").value.trim();
+  const phone = document.getElementById("custPhone").value.trim();
+  const address = document.getElementById("custAddress").value.trim();
+  if(!name || !phone || !address) { alert(currentLang === "en" ? "Please fill all details." : "برجاء كتابة البيانات."); return; }
+  
+  let itemsText = "";
+  let total = 0;
+  cart.forEach((item) => { 
+    total += item.price; 
+    itemsText += `- ${item.title} (مقاس: ${item.size}) - طريقة الدفع: ${selectedPaymentType}\n`; 
+  });
+  
+  const btn = document.getElementById("submitOrderBtn"); btn.innerText = t.processing; btn.disabled = true;
+  
+  const templateParams = {
+    customer_name: name,
+    customer_phone: phone,
+    customer_address: address,
+    order_items: itemsText,
+    total_price: total + " EGP"
+  };
+
+  emailjs.send('service_yo11tb6', 'template_6oueuw7', templateParams)
+    .then(() => {
+       alert(t.successAlert); clearCart();
+       document.getElementById("custName").value = ""; document.getElementById("custPhone").value = ""; document.getElementById("custAddress").value = "";
+       toggleCart(false); btn.innerText = t.submitOrderBtn; btn.disabled = false;
+    }).catch((err) => { 
+       alert(t.errorAlert); 
+       btn.innerText = t.submitOrderBtn; 
+       btn.disabled = false; 
+    });
+}
+
+renderMainShopProducts();
+</script>
+</body>
+</html>
