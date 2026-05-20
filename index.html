@@ -21,7 +21,8 @@ body{ overflow-x:hidden; background:#000; color:white; }
 body.rtl { direction: rtl; }
 canvas{ position:fixed; top:0; left:0; z-index:1; }
 .overlay{ position:fixed; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.9)); z-index:2; }
-.top-controls { position: fixed; top: 25px; right: 40px; z-index: 9999; display: flex; gap: 15px; align-items: center; opacity: 0; visibility: hidden; transition: 0.4s ease-in-out; pointer-events: none; }
+
+.top-controls { position: fixed; top: 25px; right: 40px; z-index: 9994; display: flex; gap: 15px; align-items: center; opacity: 0; visibility: hidden; transition: 0.4s ease-in-out; pointer-events: none; }
 .top-controls.active { opacity: 1; visibility: visible; pointer-events: auto; }
 body.rtl .top-controls { right: auto; left: 40px; }
 .lang-btn, .cart-icon-container { background: rgba(20, 20, 20, 0.9); border: 1px solid #333; padding: 12px 20px; border-radius: 4px; backdrop-filter: blur(10px); transition: 0.3s; cursor: pointer; color: white; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
@@ -44,8 +45,10 @@ body.rtl .cart-sidebar.active { left: 0; }
 .cart-item-size { font-size: 12px; color: #aaa; margin-bottom: 5px; }
 .btn-remove { background: #d9534f; color: white; border: none; padding: 8px; cursor: pointer; border-radius: 4px; transition: 0.3s; width: 100%; font-weight: bold;}
 .btn-remove:hover { background: #c9302c; }
+
 .order-item { background: #222; border: 1px dashed #555; padding: 15px; margin-bottom: 12px; border-radius: 6px; transition: 0.3s;}
 .order-header { display: flex; justify-content: space-between; margin-bottom: 10px; color: #4cae4c; font-size: 14px;}
+
 .customer-info-form { border-top: 1px solid #222; padding-top: 15px; margin-bottom: 15px; }
 .form-title { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
 .form-input { width: 100%; background: #111; border: 1px solid #222; color: white; padding: 12px; font-size: 13px; margin-bottom: 10px; outline: none; }
@@ -112,7 +115,7 @@ footer { position: relative; z-index: 3; padding: 50px 40px; text-align: center;
 
 <div class="top-controls" id="topControls">
   <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">العربية</button>
-  <div class="cart-icon-container" onclick="toggleCart(true)">
+  <div class="cart-icon-container" onclick="toggleCart(true); event.stopPropagation();">
     <svg class="cart-svg" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
     <span class="cart-count" id="cartCount">0</span>
   </div>
@@ -120,7 +123,7 @@ footer { position: relative; z-index: 3; padding: 50px 40px; text-align: center;
 
 <div class="toast-notification" id="toastNotification">🛒 Added to cart successfully!</div>
 
-<div class="cart-sidebar" id="cartSidebar">
+<div class="cart-sidebar" id="cartSidebar" onclick="event.stopPropagation();">
   <div class="cart-sidebar-header">
     <h3 id="cartTitle">YOUR CART</h3>
     <span class="close-cart" onclick="toggleCart(false)">&times;</span>
@@ -176,8 +179,8 @@ footer { position: relative; z-index: 3; padding: 50px 40px; text-align: center;
         </div>
       </div>
       <div class="action-buttons-group">
-        <button class="page-buy-now-btn" id="buyNowBtn" onclick="addProductFromPageToCart(true)">BUY NOW</button>
-        <button class="page-add-to-cart-btn" id="addToCartBtn" onclick="addProductFromPageToCart(false)">ADD TO CART</button>
+        <button class="page-buy-now-btn" id="buyNowBtn" onclick="addProductFromPageToCart(true); event.stopPropagation();">BUY NOW</button>
+        <button class="page-add-to-cart-btn" id="addToCartBtn" onclick="addProductFromPageToCart(false); event.stopPropagation();">ADD TO CART</button>
       </div>
       <div class="payment-section">
         <div class="payment-title" id="paymentTitle">GUARANTEED SAFE CHECKOUT</div>
@@ -234,28 +237,37 @@ const translations = {
   ar: { langBtn: "English", heroDesc: "استمر في السير،<br>رحلتك قد بدأت للتو", enterBtn: "دخول المتجر", collectionTitle: "التشكيلة الجديدة", backBtn: "→ العودة للرئيسية", selectSizeTitle: "اختر المقاس", addToCartBtn: "إضافة إلى السلة", buyNowBtn: "شراء الآن", paymentTitle: "الدفع الآمن المضمون", pay1: "الدفع عند الاستلام", cartTitle: "سلة المشتريات", formTitle: "تفاصيل الشحن والاتصال", placeholderName: "الاسم بالكامل", placeholderPhone: "رقم الهاتف", placeholderAddress: "عنوان الشحن", totalWord: "الإجمالي:", submitOrderBtn: "تأكيد الطلب", clearCartBtn: "تفريغ السلة", processing: "جاري الإرسال...", successAlert: "🎉 تم تسجيل طلبك بنجاح!", errorAlert: "🚨 حدث خطأ أثناء الإرسال.", sizeWord: "المقاس", addedSuccess: "🛒 تم إضافة المنتج!", relatedTitle: "منتجات قد تعجبك أيضاً", payVisa: "فيزا / ماستركارد", payVodafone: "فودافون كاش", ordersTitle: "سجل الطلبات", orderNum: "طلب رقم", emptyOrders: "لا يوجد طلبات سابقة.", cancelOrder: "إلغاء الطلب", removeBtn: "إزالة", canceledStatus: "ملغي" }
 };
 
-// وظيفة التحكم في ظهور الزرارين بناءً على مكان المستخدم في الصفحة
 window.onscroll = function() {
     const topControls = document.getElementById('topControls');
     const heroHeight = document.getElementById('heroSection').offsetHeight;
-    
-    // لو المستخدم نزل تحت منطقة الـ Hero أو دخل صفحة المنتج، يظهروا
     if (window.scrollY > (heroHeight - 100) || selectedPageProductId !== null) {
-        topControls.classList.add('active');
+        const s = document.getElementById("cartSidebar");
+        if (!s.classList.contains("active")) {
+            topControls.classList.add('active');
+        }
     } else {
         topControls.classList.remove('active');
     }
 };
 
+// 🌟 ميزة إغلاق الشنطة عند الضغط في أي مكان بالخارج
+document.addEventListener("click", function () {
+    const s = document.getElementById("cartSidebar");
+    if (s.classList.contains("active")) {
+        toggleCart(false);
+    }
+});
+
 function sendOrderToTelegram() {
     const t = translations[currentLang];
     if(cart.length === 0) { alert(currentLang === "en" ? "Your cart is empty!" : "السلة فارغة!"); return; }
+    
     const name = document.getElementById("custName").value.trim();
     const phone = document.getElementById("custPhone").value.trim();
     const address = document.getElementById("custAddress").value.trim();
     if(!name || !phone || !address) { alert(currentLang === "en" ? "Please fill all details." : "برجاء كتابة البيانات."); return; }
-    let itemsText = ""; let total = 0;
     
+    let itemsText = ""; let total = 0;
     cart.forEach((item) => { 
         total += item.price; 
         const matchedProduct = productsData[item.productId];
@@ -264,7 +276,6 @@ function sendOrderToTelegram() {
     });
     
     const orderId = Math.floor(Math.random() * 900000) + 100000;
-    // تم إزالة علامة الشباك من الرسالة
     const msg = `✅ *طلب جديد*\n🆔 *رقم الطلب:* ${orderId}\n👤 *الاسم:* ${name}\n📞 *الهاتف:* ${phone}\n📍 *العنوان:* ${address}\n💳 *الدفع:* ${selectedPaymentType}\n\n*المنتجات:*\n${itemsText}💰 *الإجمالي:* ${total} EGP`;
     const btn = document.getElementById("submitOrderBtn"); btn.innerText = t.processing; btn.disabled = true;
     
@@ -275,30 +286,29 @@ function sendOrderToTelegram() {
     .then(r => r.json()).then(data => {
         if(data.ok) {
             alert(t.successAlert);
-            // إضافة حالة الطلب status كـ active
-            orders.push({ id: orderId, total: total, name: name, status: 'active' });
+            orders.push({ id: orderId, total: total, status: 'pending' });
             localStorage.setItem('rahal_orders', JSON.stringify(orders));
-            clearCart(); updateOrdersUI();
-            document.getElementById("custName").value = ""; document.getElementById("custPhone").value = ""; document.getElementById("custAddress").value = "";
+            clearCart(); 
+            updateOrdersUI();
         } else { alert(t.errorAlert); }
     }).finally(() => { btn.innerText = t.submitOrderBtn; btn.disabled = false; });
 }
 
-function cancelOrderFromHistory(index) {
-    const order = orders[index];
-    if (order.status === 'canceled') return; // لمنع الإلغاء مرتين
+function cancelOrderFromHistory(orderId) {
+    const t = translations[currentLang];
+    const msg = `❌ *تنبيه بإلغاء طلب*\n🆔 *رقم الطلب الملغي:* ${orderId}\n⚠️ *الإجراء:* العميل قام بإلغاء الطلب بنفسه من الموقع.`;
     
-    // تم إزالة علامة الشباك من الرسالة
-    const msg = `❌ *تنبيه بإلغاء طلب*\n🆔 *رقم الطلب الملغي:* ${order.id}\n👤 *العميل:* ${order.name || 'غير محدد'}\n💰 *قيمة الطلب:* ${order.total} EGP\n⚠️ *الإجراء:* العميل قام بإلغاء الطلب بنفسه من الموقع.`;
+    orders = orders.map(order => {
+        if(order.id === orderId) { order.status = 'canceled'; }
+        return order;
+    });
+    localStorage.setItem('rahal_orders', JSON.stringify(orders));
     
     fetch(`https://api.telegram.org/bot8915597121:AAENVh--erCmpafiePLf0ztAuDCsM8FFxkk/sendMessage`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: "1682507009", text: msg, parse_mode: "Markdown" })
     });
     
-    // بدلاً من مسح الطلب، نقوم بتحديث حالته إلى "ملغي"
-    orders[index].status = 'canceled';
-    localStorage.setItem('rahal_orders', JSON.stringify(orders));
     updateOrdersUI();
     alert(currentLang === "en" ? "Order cancelled successfully!" : "تم إلغاء الطلب بنجاح!");
 }
@@ -307,15 +317,12 @@ function updateOrdersUI() {
     let list = document.getElementById("orderHistoryList"); if(!list) return; list.innerHTML = ""; let t = translations[currentLang];
     if (orders.length === 0) { list.innerHTML = `<p style='color:#777; font-size:14px; text-align:center;'>${t.emptyOrders}</p>`; return; }
     
-    orders.forEach((order, index) => {
+    orders.forEach((order) => {
         let isCanceled = order.status === 'canceled';
-        
-        // لو ملغي، هنظهر كلمة (ملغي) بدل زرار الإلغاء
         let actionHtml = isCanceled 
             ? `<div style="text-align: center; color: #d9534f; font-weight: bold; margin-top: 5px; padding: 6px; border: 1px solid #d9534f; border-radius: 4px; background: rgba(217, 83, 79, 0.1);">${t.canceledStatus}</div>`
-            : `<button class="btn-remove" style="width: 100%; background: #d9534f;" onclick="cancelOrderFromHistory(${index})">${t.cancelOrder}</button>`;
+            : `<button class="btn-remove" style="width: 100%; background: #d9534f;" onclick="cancelOrderFromHistory(${order.id}); event.stopPropagation();">${t.cancelOrder}</button>`;
             
-        // تغيير شكل العنصر لو الطلب ملغي (يكون باهت شوية) وتم إزالة الشباك
         list.innerHTML += `<div class="order-item" style="${isCanceled ? 'opacity: 0.6; border-color: #442222;' : ''}">
             <div class="order-header" style="${isCanceled ? 'color: #888;' : ''}">
                 <strong>${t.orderNum} ${order.id}</strong>
@@ -330,7 +337,8 @@ function renderMainShopProducts() { const container = document.getElementById("m
 function toggleLanguage() { currentLang = currentLang === "en" ? "ar" : "en"; document.body.classList.toggle("rtl", currentLang === "ar"); updateUILanguage(); }
 
 function updateUILanguage() { 
-    const t = translations[currentLang]; document.getElementById("langBtn").innerText = t.langBtn; document.getElementById("heroDesc").innerHTML = t.heroDesc; document.getElementById("enterBtn").innerText = t.enterBtn; document.getElementById("collectionTitle").innerText = t.collectionTitle; document.getElementById("backBtn").innerText = t.backBtn; document.getElementById("selectSizeTitle").innerText = t.selectSizeTitle; document.getElementById("addToCartBtn").innerText = t.addToCartBtn; document.getElementById("buyNowBtn").innerText = t.buyNowBtn; document.getElementById("paymentTitle").innerText = t.paymentTitle; document.getElementById("payVisa").innerText = t.payVisa; document.getElementById("payVodafone").innerText = t.payVodafone; document.getElementById("pay1").innerText = t.pay1; document.getElementById("cartTitle").innerText = t.cartTitle; document.getElementById("formTitle").innerText = t.formTitle; document.getElementById("custName").placeholder = t.placeholderName; document.getElementById("custPhone").placeholder = t.placeholderPhone; document.getElementById("custAddress").placeholder = t.placeholderAddress; document.getElementById("totalWord").innerText = t.totalWord; document.getElementById("submitOrderBtn").innerText = t.submitOrderBtn; document.getElementById("clearCartBtn").innerText = t.clearCartBtn; document.getElementById("relatedTitle").innerText = t.relatedTitle; document.getElementById("ordersTitle").innerText = t.ordersTitle; Object.keys(productsData).forEach(key => { const prod = productsData[key]; const el = document.getElementById(`p${prod.id}-title`); if(el) el.innerText = prod.titles[currentLang]; }); if(selectedPageProductId) { document.getElementById("pageProductTitle").innerText = productsData[selectedPageProductId].titles[currentLang]; renderRelatedProducts(selectedPageProductId); } updateCartUI(); updateOrdersUI();
+    const t = translations[currentLang]; document.getElementById("langBtn").innerText = t.langBtn; document.getElementById("heroDesc").innerHTML = t.heroDesc; document.getElementById("enterBtn").innerText = t.enterBtn; document.getElementById("collectionTitle").innerText = t.collectionTitle; document.getElementById("backBtn").innerText = t.backBtn; document.getElementById("selectSizeTitle").innerText = t.selectSizeTitle; document.getElementById("addToCartBtn").innerText = t.addToCartBtn; document.getElementById("buyNowBtn").innerText = t.buyNowBtn; document.getElementById("paymentTitle").innerText = t.paymentTitle; document.getElementById("payVisa").innerText = t.payVisa; document.getElementById("payVodafone").innerText = t.payVodafone; document.getElementById("pay1").innerText = t.pay1; document.getElementById("cartTitle").innerText = t.cartTitle; document.getElementById("formTitle").innerText = t.formTitle; document.getElementById("custName").placeholder = t.placeholderName; document.getElementById("custPhone").placeholder = t.placeholderPhone; document.getElementById("custAddress").placeholder = t.placeholderAddress; document.getElementById("totalWord").innerText = t.totalWord; document.getElementById("submitOrderBtn").innerText = t.submitOrderBtn; document.getElementById("clearCartBtn").innerText = t.clearCartBtn; document.getElementById("relatedTitle").innerText = t.relatedTitle; document.getElementById("ordersTitle").innerText = t.ordersTitle;
+    Object.keys(productsData).forEach(key => { const prod = productsData[key]; const el = document.getElementById(`p${prod.id}-title`); if(el) el.innerText = prod.titles[currentLang]; }); if(selectedPageProductId) { document.getElementById("pageProductTitle").innerText = productsData[selectedPageProductId].titles[currentLang]; renderRelatedProducts(selectedPageProductId); } updateCartUI(); updateOrdersUI();
 }
 
 function navigateToProductPage(id) { selectedPageProductId = id; currentImageIndex = 0; const product = productsData[id]; document.getElementById("pageProductTitle").innerText = product.titles[currentLang]; document.getElementById("pageProductPrice").innerText = "650 EGP"; updateSliderUI(); renderRelatedProducts(id); document.getElementById("mainShopPage").style.display = "none"; document.getElementById("independentProductPage").classList.add("active"); window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -341,7 +349,20 @@ function jumpToImage(index) { currentImageIndex = index; updateSliderUI(); }
 function renderRelatedProducts(currentId) { const container = document.getElementById("relatedCardsContainer"); if(!container) return; container.innerHTML = ""; Object.keys(productsData).forEach(key => { const prod = productsData[key]; if(prod.id !== currentId) { container.innerHTML += `<div class="card"><img src="${prod.images[0]}" onclick="navigateToProductPage(${prod.id})"><div class="card-content"><h3 style="margin: 15px 0 10px 0;">${prod.titles[currentLang]}</h3><div style="font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px;">650 EGP</div></div></div>`; } }); }
 function returnToMainShop() { document.getElementById("independentProductPage").classList.remove("active"); document.getElementById("mainShopPage").style.display = "block"; selectedPageProductId = null; }
 function selectSize(btn) { btn.parentElement.querySelectorAll('.size-opt').forEach(o=>o.classList.remove('active')); btn.classList.add('active'); }
-function toggleCart(open) { const s = document.getElementById("cartSidebar"); if(open) s.classList.add("active"); else s.classList.remove("active"); }
+
+function toggleCart(open) { 
+    const s = document.getElementById("cartSidebar"); 
+    const topControls = document.getElementById("topControls");
+    
+    if (open) {
+        s.classList.add("active"); 
+        topControls.style.display = "none"; 
+    } else {
+        s.classList.remove("active"); 
+        topControls.style.display = ""; 
+    }
+}
+
 function selectPaymentMethod(element, methodValue) { element.parentElement.querySelectorAll('.method-badge').forEach(b => b.classList.remove('selected')); element.classList.add('selected'); selectedPaymentType = methodValue; }
 
 function addProductFromPageToCart(openCart) { 
@@ -359,7 +380,7 @@ function updateCartUI() {
         total += item.price; 
         const matchedProduct = productsData[item.productId];
         const displayTitle = matchedProduct ? matchedProduct.titles[currentLang] : item.title;
-        list.innerHTML += `<div class="cart-item"><div class="cart-item-header"><span>${displayTitle}</span><span>${item.price} EGP</span></div><div class="cart-item-size">${t.sizeWord}: ${item.size}</div><button class="btn-remove" onclick="removeItem(${item.id})">${t.removeBtn}</button></div>`; 
+        list.innerHTML += `<div class="cart-item"><div class="cart-item-header"><span>${displayTitle}</span><span>${item.price} EGP</span></div><div class="cart-item-size">${t.sizeWord}: ${item.size}</div><button class="btn-remove" onclick="removeItem(${item.id}); event.stopPropagation();">${t.removeBtn}</button></div>`; 
     }); 
     document.getElementById("cartTotalSum").innerText = total + " EGP"; 
 }
