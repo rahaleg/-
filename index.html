@@ -6,24 +6,23 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-CH78V68QEW');
 </script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RAHAL STORE</title>
-
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
 <style>
-/* (تم الإبقاء على استايلاتك كما هي تماماً) */
+/* --- التنسيقات --- */
 *{ margin:0; padding:0; box-sizing:border-box; font-family:Arial, Helvetica, sans-serif; scroll-behavior:smooth; }
 body{ overflow-x:hidden; background:#000; color:white; }
 body.rtl { direction: rtl; }
 canvas{ position:fixed; top:0; left:0; z-index:1; }
 .overlay{ position:fixed; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.9)); z-index:2; }
-.top-controls { position: fixed; top: 25px; right: 40px; z-index: 9999; display: flex; gap: 15px; align-items: center; }
+.top-controls { position: fixed; top: 25px; right: 40px; z-index: 9999; display: flex; gap: 15px; align-items: center; opacity: 0; visibility: hidden; transition: 0.4s ease-in-out; pointer-events: none; }
+.top-controls.active { opacity: 1; visibility: visible; pointer-events: auto; }
 body.rtl .top-controls { right: auto; left: 40px; }
 .lang-btn, .cart-icon-container { background: rgba(20, 20, 20, 0.9); border: 1px solid #333; padding: 12px 20px; border-radius: 4px; backdrop-filter: blur(10px); transition: 0.3s; cursor: pointer; color: white; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 .lang-btn:hover, .cart-icon-container:hover { border-color: white; transform: scale(1.05); }
@@ -31,24 +30,33 @@ body.rtl .top-controls { right: auto; left: 40px; }
 .cart-count { background: white; color: black; font-weight: bold; font-size: 12px; padding: 2px 7px; border-radius: 50%; }
 .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: #ffffff; color: #000000; padding: 15px 30px; font-weight: bold; border-radius: 4px; z-index: 10000; box-shadow: 0 5px 20px rgba(255,255,255,0.2); transition: bottom 0.4s ease, opacity 0.4s ease; opacity: 0; font-size: 14px; pointer-events: none; }
 .toast-notification.show { bottom: 40px; opacity: 1; }
-.cart-sidebar { position: fixed; top: 0; right: -450px; width: 400px; max-width: 100%; height: 100vh; background: #0a0a0a; border-left: 1px solid #222; z-index: 9995; padding: 30px; display: flex; flex-direction: column; transition: 0.4s ease; }
+
+.cart-sidebar { position: fixed; top: 0; right: -450px; width: 400px; max-width: 100%; height: 100vh; background: #0a0a0a; border-left: 1px solid #222; z-index: 9995; padding: 30px; display: flex; flex-direction: column; transition: 0.4s ease; overflow-y: auto; }
 body.rtl .cart-sidebar { right: auto; left: -450px; border-left: none; border-right: 1px solid #222; }
 .cart-sidebar.active { right: 0; }
 body.rtl .cart-sidebar.active { left: 0; }
 .cart-sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 15px; margin-bottom: 20px; }
 .close-cart { font-size: 28px; cursor: pointer; color: #666; transition: 0.3s; }
 .close-cart:hover { color: white; }
-.cart-items-list { flex: 1; overflow-y: auto; margin-bottom: 20px; }
-.cart-item { display: flex; justify-content: space-between; align-items: center; background: #111; border: 1px solid #222; padding: 12px; margin-bottom: 10px; font-size: 14px; }
-.remove-item-btn { background: transparent; border: none; color: #ff4444; cursor: pointer; }
+.cart-items-list { margin-bottom: 20px; }
+.cart-item { background: #1c1c1c; border: 1px solid #333; padding: 15px; margin-bottom: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 10px; }
+.cart-item-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px;}
+.cart-item-size { font-size: 12px; color: #aaa; margin-bottom: 5px; }
+.btn-remove { background: #d9534f; color: white; border: none; padding: 8px; cursor: pointer; border-radius: 4px; transition: 0.3s; width: 100%; font-weight: bold;}
+.btn-remove:hover { background: #c9302c; }
+.order-item { background: #222; border: 1px dashed #555; padding: 15px; margin-bottom: 12px; border-radius: 6px; transition: 0.3s;}
+.order-header { display: flex; justify-content: space-between; margin-bottom: 10px; color: #4cae4c; font-size: 14px;}
 .customer-info-form { border-top: 1px solid #222; padding-top: 15px; margin-bottom: 15px; }
 .form-title { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
 .form-input { width: 100%; background: #111; border: 1px solid #222; color: white; padding: 12px; font-size: 13px; margin-bottom: 10px; outline: none; }
 .form-input:focus { border-color: white; }
 .cart-footer { border-top: 1px solid #222; padding-top: 15px; }
 .cart-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
-.checkout-btn { width: 100%; padding: 14px; background: white; color: black; border: none; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
-.clear-cart-btn { width: 100%; padding: 10px; background: transparent; border: 1px solid #ff4444; color: #ff4444; cursor: pointer; }
+.checkout-btn { width: 100%; padding: 14px; background: white; color: black; border: none; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.3s;}
+.checkout-btn:hover { background: #ddd;}
+.clear-cart-btn { width: 100%; padding: 10px; background: transparent; border: 1px solid #ff4444; color: #ff4444; cursor: pointer; transition: 0.3s;}
+.clear-cart-btn:hover { background: #ff4444; color: white; }
+
 .hero{ position:relative; z-index:3; height:100vh; display:flex; justify-content:center; align-items:center; flex-direction:column; text-align:center; padding:20px; }
 .logo{ width:650px; max-width:90%; margin-bottom:20px; }
 .desc{ margin-top:25px; color:#aaa; max-width:600px; font-size:18px; }
@@ -102,12 +110,10 @@ footer { position: relative; z-index: 3; padding: 50px 40px; text-align: center;
 <canvas id="bg"></canvas>
 <div class="overlay"></div>
 
-<div class="top-controls">
+<div class="top-controls" id="topControls">
   <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">العربية</button>
   <div class="cart-icon-container" onclick="toggleCart(true)">
-    <svg class="cart-svg" viewBox="0 0 24 24">
-      <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
-    </svg>
+    <svg class="cart-svg" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
     <span class="cart-count" id="cartCount">0</span>
   </div>
 </div>
@@ -127,22 +133,21 @@ footer { position: relative; z-index: 3; padding: 50px 40px; text-align: center;
     <input type="text" id="custAddress" class="form-input" placeholder="Shipping Address Details" required>
   </div>
   <div class="cart-footer">
-    <div class="cart-total">
-      <span id="totalWord">Total:</span>
-      <span id="cartTotalSum">0 EGP</span>
-    </div>
+    <div class="cart-total"><span id="totalWord">Total:</span> <span id="cartTotalSum">0 EGP</span></div>
     <button class="checkout-btn" id="submitOrderBtn" onclick="sendOrderToTelegram()">SUBMIT ORDER</button>
     <button class="clear-cart-btn" id="clearCartBtn" onclick="clearCart()">CLEAR CART</button>
   </div>
+  <hr style="border-color: #222; margin: 25px 0;">
+  <h3 id="ordersTitle" style="margin-bottom: 15px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Order History</h3>
+  <div id="orderHistoryList"></div>
 </div>
 
 <div id="mainShopPage">
-  <section class="hero">
+  <section class="hero" id="heroSection">
     <img src="logo.png" class="logo">
     <div class="desc" id="heroDesc">Keep Going,<br>Your Journey Is Just Beginning</div>
     <a href="#shop"><button class="btn" id="enterBtn">ENTER STORE</button></a>
   </section>
-
   <section class="products" id="shop">
     <h1 class="products-title" id="collectionTitle">NEW COLLECTION</h1>
     <div class="cards" id="mainCardsContainer"></div>
@@ -192,25 +197,31 @@ footer { position: relative; z-index: 3; padding: 50px 40px; text-align: center;
 
 <footer>
   <div class="social-links">
-    <a href="https://www.tiktok.com/@rahal_20051?_r=1&_t=ZS-96U4ZM3Y9eX" target="_blank" aria-label="TikTok">
-      <svg class="social-icon" viewBox="0 0 24 24"><path d="M12.525.02c1.31.01 2.61-.01 3.91.02.08 1.53.63 3.03 1.6 4.17 1.22 1.42 3.01 2.21 4.85 2.37v3.62c-1.62-.03-3.21-.46-4.6-1.27-.2-.11-.4-.24-.59-.37v6.62c.04 2.22-.84 4.39-2.42 5.95-1.67 1.67-4.04 2.51-6.41 2.31-2.28-.15-4.43-1.32-5.69-3.22-1.38-2.01-1.68-4.66-.82-6.93.81-2.18 2.68-3.86 4.93-4.42 1.05-.27 2.15-.29 3.2-.07v3.66c-.73-.21-1.52-.18-2.23.08-1.28.43-2.26 1.58-2.48 2.92-.3 1.74.74 3.48 2.45 3.89 1.58.4 3.32-.42 3.86-1.93.18-.5.25-1.03.24-1.56V0l.93.02z"/></svg>
-    </a>
-    <a href="https://www.instagram.com/rahal1_eg?igsh=MWs5aTQ1ajFqcTdpbA%3D%3D&utm_source=qr" target="_blank" aria-label="Instagram">
-      <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-    </a>
+    <a href="https://www.tiktok.com/@rahal_20051?_r=1&_t=ZS-96U4ZM3Y9eX" target="_blank" aria-label="TikTok"><svg class="social-icon" viewBox="0 0 24 24"><path d="M12.525.02c1.31.01 2.61-.01 3.91.02.08 1.53.63 3.03 1.6 4.17 1.22 1.42 3.01 2.21 4.85 2.37v3.62c-1.62-.03-3.21-.46-4.6-1.27-.2-.11-.4-.24-.59-.37v6.62c.04 2.22-.84 4.39-2.42 5.95-1.67 1.67-4.04 2.51-6.41 2.31-2.28-.15-4.43-1.32-5.69-3.22-1.38-2.01-1.68-4.66-.82-6.93.81-2.18 2.68-3.86 4.93-4.42 1.05-.27 2.15-.29 3.2-.07v3.66c-.73-.21-1.52-.18-2.23.08-1.28.43-2.26 1.58-2.48 2.92-.3 1.74.74 3.48 2.45 3.89 1.58.4 3.32-.42 3.86-1.93.18-.5.25-1.03.24-1.56V0l.93.02z"/></svg></a>
+    <a href="https://www.instagram.com/rahal1_eg?igsh=MWs5aTQ1ajFqcTdpbA%3D%3D&utm_source=qr" target="_blank" aria-label="Instagram"><svg class="social-icon" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
   </div>
   <div>©️ 2026 RAHAL — ALL RIGHTS RESERVED</div>
 </footer>
 
 <script>
-// (تم الإبقاء على تهيئة EmailJS كما هي)
 try { emailjs.init("OYlLhPyLEJhJrsCTY"); } catch(e) { console.log(e); }
 
 let currentLang = "en"; 
 let selectedPaymentType = "Cash on Delivery"; 
 let selectedPageProductId = null; 
 let currentImageIndex = 0; 
-let cart = [];
+
+let cart = JSON.parse(localStorage.getItem('rahal_cart')) || [];
+let orders = JSON.parse(localStorage.getItem('rahal_orders')) || [];
+
+const canvas = document.getElementById("bg"); 
+const ctx = canvas.getContext("2d"); 
+canvas.width = window.innerWidth; 
+canvas.height = window.innerHeight; 
+let stars = []; 
+for(let i=0; i<2500; i++){ 
+  stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, radius:Math.random()*1.6, opacity:Math.random(), speed:(Math.random()*0.015)+0.005}); 
+}
 
 const productsData = {
   1: { id: 1, price: 650, images: ["shirt1_1.jpg", "shirt1_2.jpg", "shirt1_3.jpg", "shirt1_4.jpg", "shirt1_5.jpg"], titles: { en: "The Starry Journey Tee", ar: "تيشيرت ليلة نجوم راحل / فان جوخ أوفرسايز" } },
@@ -219,80 +230,149 @@ const productsData = {
 };
 
 const translations = {
-  en: { langBtn: "العربية", heroDesc: "Keep Going,<br>Your Journey Is Just Beginning", enterBtn: "ENTER STORE", collectionTitle: "NEW COLLECTION", backBtn: "← BACK TO COLLECTION", selectSizeTitle: "Select Size", addToCartBtn: "ADD TO CART", buyNowBtn: "BUY NOW", paymentTitle: "GUARANTEED SAFE CHECKOUT", pay1: "CASH ON DELIVERY", cartTitle: "YOUR CART", formTitle: "Shipping & Contact Details", placeholderName: "Full Name", placeholderPhone: "Phone Number", placeholderAddress: "Shipping Address Details", totalWord: "Total:", submitOrderBtn: "SUBMIT ORDER", clearCartBtn: "CLEAR CART", processing: "PROCESSING...", successAlert: "🎉 Order placed successfully!", errorAlert: "🚨 Error sending order.", sizeWord: "Size", addedSuccess: "🛒 Added to cart!", relatedTitle: "YOU MAY ALSO LIKE", payVisa: "VISA / MASTERCARD", payVodafone: "VODAFONE CASH" },
-  ar: { langBtn: "English", heroDesc: "استمر في السير،<br>رحلتك قد بدأت للتو", enterBtn: "دخول المتجر", collectionTitle: "التشكيلة الجديدة", backBtn: "→ العودة للرئيسية", selectSizeTitle: "اختر المقاس", addToCartBtn: "إضافة إلى السلة", buyNowBtn: "شراء الآن", paymentTitle: "الدفع الآمن المضمون", pay1: "الدفع عند الاستلام", cartTitle: "سلة المشتريات", formTitle: "تفاصيل الشحن والاتصال", placeholderName: "الاسم بالكامل", placeholderPhone: "رقم الهاتف", placeholderAddress: "عنوان الشحن", totalWord: "الإجمالي:", submitOrderBtn: "تأكيد الطلب", clearCartBtn: "تفريغ السلة", processing: "جاري الإرسال...", successAlert: "🎉 تم تسجيل طلبك بنجاح!", errorAlert: "🚨 حدث خطأ أثناء الإرسال.", sizeWord: "المقاس", addedSuccess: "🛒 تم إضافة المنتج!", relatedTitle: "منتجات قد تعجبك أيضاً", payVisa: "فيزا / ماستركارد", payVodafone: "فودافون كاش" }
+  en: { langBtn: "العربية", heroDesc: "Keep Going,<br>Your Journey Is Just Beginning", enterBtn: "ENTER STORE", collectionTitle: "NEW COLLECTION", backBtn: "← BACK TO COLLECTION", selectSizeTitle: "Select Size", addToCartBtn: "ADD TO CART", buyNowBtn: "BUY NOW", paymentTitle: "GUARANTEED SAFE CHECKOUT", pay1: "CASH ON DELIVERY", cartTitle: "YOUR CART", formTitle: "Shipping & Contact Details", placeholderName: "Full Name", placeholderPhone: "Phone Number", placeholderAddress: "Shipping Address Details", totalWord: "Total:", submitOrderBtn: "SUBMIT ORDER", clearCartBtn: "CLEAR CART", processing: "PROCESSING...", successAlert: "🎉 Order placed successfully!", errorAlert: "🚨 Error sending order.", sizeWord: "Size", addedSuccess: "🛒 Added to cart!", relatedTitle: "YOU MAY ALSO LIKE", payVisa: "VISA / MASTERCARD", payVodafone: "VODAFONE CASH", ordersTitle: "Order History", orderNum: "Order", emptyOrders: "No previous orders.", cancelOrder: "Cancel Order", removeBtn: "Remove", canceledStatus: "Canceled" },
+  ar: { langBtn: "English", heroDesc: "استمر في السير،<br>رحلتك قد بدأت للتو", enterBtn: "دخول المتجر", collectionTitle: "التشكيلة الجديدة", backBtn: "→ العودة للرئيسية", selectSizeTitle: "اختر المقاس", addToCartBtn: "إضافة إلى السلة", buyNowBtn: "شراء الآن", paymentTitle: "الدفع الآمن المضمون", pay1: "الدفع عند الاستلام", cartTitle: "سلة المشتريات", formTitle: "تفاصيل الشحن والاتصال", placeholderName: "الاسم بالكامل", placeholderPhone: "رقم الهاتف", placeholderAddress: "عنوان الشحن", totalWord: "الإجمالي:", submitOrderBtn: "تأكيد الطلب", clearCartBtn: "تفريغ السلة", processing: "جاري الإرسال...", successAlert: "🎉 تم تسجيل طلبك بنجاح!", errorAlert: "🚨 حدث خطأ أثناء الإرسال.", sizeWord: "المقاس", addedSuccess: "🛒 تم إضافة المنتج!", relatedTitle: "منتجات قد تعجبك أيضاً", payVisa: "فيزا / ماستركارد", payVodafone: "فودافون كاش", ordersTitle: "سجل الطلبات", orderNum: "طلب رقم", emptyOrders: "لا يوجد طلبات سابقة.", cancelOrder: "إلغاء الطلب", removeBtn: "إزالة", canceledStatus: "ملغي" }
 };
 
-// الدالة الجديدة لإرسال الطلب للبوت
+// وظيفة التحكم في ظهور الزرارين بناءً على مكان المستخدم في الصفحة
+window.onscroll = function() {
+    const topControls = document.getElementById('topControls');
+    const heroHeight = document.getElementById('heroSection').offsetHeight;
+    
+    // لو المستخدم نزل تحت منطقة الـ Hero أو دخل صفحة المنتج، يظهروا
+    if (window.scrollY > (heroHeight - 100) || selectedPageProductId !== null) {
+        topControls.classList.add('active');
+    } else {
+        topControls.classList.remove('active');
+    }
+};
+
 function sendOrderToTelegram() {
     const t = translations[currentLang];
     if(cart.length === 0) { alert(currentLang === "en" ? "Your cart is empty!" : "السلة فارغة!"); return; }
-    
     const name = document.getElementById("custName").value.trim();
     const phone = document.getElementById("custPhone").value.trim();
     const address = document.getElementById("custAddress").value.trim();
-    
     if(!name || !phone || !address) { alert(currentLang === "en" ? "Please fill all details." : "برجاء كتابة البيانات."); return; }
+    let itemsText = ""; let total = 0;
     
-    let itemsText = "";
-    let total = 0;
     cart.forEach((item) => { 
         total += item.price; 
-        itemsText += `• ${item.title} | المقاس: ${item.size} | السعر: ${item.price} EGP\n`; 
+        const matchedProduct = productsData[item.productId];
+        const displayTitle = matchedProduct ? matchedProduct.titles[currentLang] : item.title;
+        itemsText += `• ${displayTitle} | المقاس: ${item.size} | السعر: ${item.price} EGP\n`; 
     });
     
-    const msg = `✅ *طلب جديد*\n👤 *الاسم:* ${name}\n📞 *الهاتف:* ${phone}\n📍 *العنوان:* ${address}\n💳 *الدفع:* ${selectedPaymentType}\n\n*المنتجات:*\n${itemsText}💰 *الإجمالي:* ${total} EGP`;
-
-    const btn = document.getElementById("submitOrderBtn");
-    btn.innerText = t.processing;
-    btn.disabled = true;
-
-    // البوت الخاص بك
+    const orderId = Math.floor(Math.random() * 900000) + 100000;
+    // تم إزالة علامة الشباك من الرسالة
+    const msg = `✅ *طلب جديد*\n🆔 *رقم الطلب:* ${orderId}\n👤 *الاسم:* ${name}\n📞 *الهاتف:* ${phone}\n📍 *العنوان:* ${address}\n💳 *الدفع:* ${selectedPaymentType}\n\n*المنتجات:*\n${itemsText}💰 *الإجمالي:* ${total} EGP`;
+    const btn = document.getElementById("submitOrderBtn"); btn.innerText = t.processing; btn.disabled = true;
+    
     fetch(`https://api.telegram.org/bot8915597121:AAENVh--erCmpafiePLf0ztAuDCsM8FFxkk/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: "1682507009", text: msg, parse_mode: "Markdown" })
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(r => r.json()).then(data => {
         if(data.ok) {
             alert(t.successAlert);
-            clearCart();
-            document.getElementById("custName").value = "";
-            document.getElementById("custPhone").value = "";
-            document.getElementById("custAddress").value = "";
-            toggleCart(false);
-        } else {
-            alert(t.errorAlert);
-        }
-    })
-    .catch(() => alert(t.errorAlert))
-    .finally(() => {
-        btn.innerText = t.submitOrderBtn;
-        btn.disabled = false;
+            // إضافة حالة الطلب status كـ active
+            orders.push({ id: orderId, total: total, name: name, status: 'active' });
+            localStorage.setItem('rahal_orders', JSON.stringify(orders));
+            clearCart(); updateOrdersUI();
+            document.getElementById("custName").value = ""; document.getElementById("custPhone").value = ""; document.getElementById("custAddress").value = "";
+        } else { alert(t.errorAlert); }
+    }).finally(() => { btn.innerText = t.submitOrderBtn; btn.disabled = false; });
+}
+
+function cancelOrderFromHistory(index) {
+    const order = orders[index];
+    if (order.status === 'canceled') return; // لمنع الإلغاء مرتين
+    
+    // تم إزالة علامة الشباك من الرسالة
+    const msg = `❌ *تنبيه بإلغاء طلب*\n🆔 *رقم الطلب الملغي:* ${order.id}\n👤 *العميل:* ${order.name || 'غير محدد'}\n💰 *قيمة الطلب:* ${order.total} EGP\n⚠️ *الإجراء:* العميل قام بإلغاء الطلب بنفسه من الموقع.`;
+    
+    fetch(`https://api.telegram.org/bot8915597121:AAENVh--erCmpafiePLf0ztAuDCsM8FFxkk/sendMessage`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: "1682507009", text: msg, parse_mode: "Markdown" })
+    });
+    
+    // بدلاً من مسح الطلب، نقوم بتحديث حالته إلى "ملغي"
+    orders[index].status = 'canceled';
+    localStorage.setItem('rahal_orders', JSON.stringify(orders));
+    updateOrdersUI();
+    alert(currentLang === "en" ? "Order cancelled successfully!" : "تم إلغاء الطلب بنجاح!");
+}
+
+function updateOrdersUI() {
+    let list = document.getElementById("orderHistoryList"); if(!list) return; list.innerHTML = ""; let t = translations[currentLang];
+    if (orders.length === 0) { list.innerHTML = `<p style='color:#777; font-size:14px; text-align:center;'>${t.emptyOrders}</p>`; return; }
+    
+    orders.forEach((order, index) => {
+        let isCanceled = order.status === 'canceled';
+        
+        // لو ملغي، هنظهر كلمة (ملغي) بدل زرار الإلغاء
+        let actionHtml = isCanceled 
+            ? `<div style="text-align: center; color: #d9534f; font-weight: bold; margin-top: 5px; padding: 6px; border: 1px solid #d9534f; border-radius: 4px; background: rgba(217, 83, 79, 0.1);">${t.canceledStatus}</div>`
+            : `<button class="btn-remove" style="width: 100%; background: #d9534f;" onclick="cancelOrderFromHistory(${index})">${t.cancelOrder}</button>`;
+            
+        // تغيير شكل العنصر لو الطلب ملغي (يكون باهت شوية) وتم إزالة الشباك
+        list.innerHTML += `<div class="order-item" style="${isCanceled ? 'opacity: 0.6; border-color: #442222;' : ''}">
+            <div class="order-header" style="${isCanceled ? 'color: #888;' : ''}">
+                <strong>${t.orderNum} ${order.id}</strong>
+                <strong>${order.total} EGP</strong>
+            </div>
+            ${actionHtml}
+        </div>`;
     });
 }
 
-// (الدوال الأخرى كما هي من كودك)
 function renderMainShopProducts() { const container = document.getElementById("mainCardsContainer"); if(!container) return; container.innerHTML = ""; Object.keys(productsData).forEach(key => { const prod = productsData[key]; const currentTitle = prod.titles[currentLang]; container.innerHTML += `<div class="card"><img src="${prod.images[0]}" onclick="navigateToProductPage(${prod.id})"><div class="card-content"><h3 id="p${prod.id}-title" style="margin: 15px 0 10px 0;">${currentTitle}</h3><div style="font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px;">650 EGP</div></div></div>`; }); }
 function toggleLanguage() { currentLang = currentLang === "en" ? "ar" : "en"; document.body.classList.toggle("rtl", currentLang === "ar"); updateUILanguage(); }
-function updateUILanguage() { const t = translations[currentLang]; document.getElementById("langBtn").innerText = t.langBtn; document.getElementById("heroDesc").innerHTML = t.heroDesc; document.getElementById("enterBtn").innerText = t.enterBtn; document.getElementById("collectionTitle").innerText = t.collectionTitle; document.getElementById("backBtn").innerText = t.backBtn; document.getElementById("selectSizeTitle").innerText = t.selectSizeTitle; document.getElementById("addToCartBtn").innerText = t.addToCartBtn; document.getElementById("buyNowBtn").innerText = t.buyNowBtn; document.getElementById("paymentTitle").innerText = t.paymentTitle; document.getElementById("payVisa").innerText = t.payVisa; document.getElementById("payVodafone").innerText = t.payVodafone; document.getElementById("pay1").innerText = t.pay1; document.getElementById("cartTitle").innerText = t.cartTitle; document.getElementById("formTitle").innerText = t.formTitle; document.getElementById("custName").placeholder = t.placeholderName; document.getElementById("custPhone").placeholder = t.placeholderPhone; document.getElementById("custAddress").placeholder = t.placeholderAddress; document.getElementById("totalWord").innerText = t.totalWord; document.getElementById("submitOrderBtn").innerText = t.submitOrderBtn; document.getElementById("clearCartBtn").innerText = t.clearCartBtn; document.getElementById("relatedTitle").innerText = t.relatedTitle; Object.keys(productsData).forEach(key => { const prod = productsData[key]; const el = document.getElementById(`p${prod.id}-title`); if(el) el.innerText = prod.titles[currentLang]; }); if(selectedPageProductId) { document.getElementById("pageProductTitle").innerText = productsData[selectedPageProductId].titles[currentLang]; renderRelatedProducts(selectedPageProductId); } updateCartUI(); }
-const canvas = document.getElementById("bg"); const ctx = canvas.getContext("2d"); canvas.width = window.innerWidth; canvas.height = window.innerHeight; let stars = []; for(let i=0; i<2500; i++){ stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, radius:Math.random()*1.6, opacity:Math.random(), speed:(Math.random()*0.015)+0.005}); } function animate(){ ctx.clearRect(0,0,canvas.width,canvas.height); stars.forEach(s=> { s.opacity += s.speed; if(s.opacity>=1||s.opacity<=0.05) s.speed*=-1; ctx.beginPath(); ctx.arc(s.x,s.y,s.radius,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${s.opacity})`; ctx.fill(); }); requestAnimationFrame(animate); } animate();
+
+function updateUILanguage() { 
+    const t = translations[currentLang]; document.getElementById("langBtn").innerText = t.langBtn; document.getElementById("heroDesc").innerHTML = t.heroDesc; document.getElementById("enterBtn").innerText = t.enterBtn; document.getElementById("collectionTitle").innerText = t.collectionTitle; document.getElementById("backBtn").innerText = t.backBtn; document.getElementById("selectSizeTitle").innerText = t.selectSizeTitle; document.getElementById("addToCartBtn").innerText = t.addToCartBtn; document.getElementById("buyNowBtn").innerText = t.buyNowBtn; document.getElementById("paymentTitle").innerText = t.paymentTitle; document.getElementById("payVisa").innerText = t.payVisa; document.getElementById("payVodafone").innerText = t.payVodafone; document.getElementById("pay1").innerText = t.pay1; document.getElementById("cartTitle").innerText = t.cartTitle; document.getElementById("formTitle").innerText = t.formTitle; document.getElementById("custName").placeholder = t.placeholderName; document.getElementById("custPhone").placeholder = t.placeholderPhone; document.getElementById("custAddress").placeholder = t.placeholderAddress; document.getElementById("totalWord").innerText = t.totalWord; document.getElementById("submitOrderBtn").innerText = t.submitOrderBtn; document.getElementById("clearCartBtn").innerText = t.clearCartBtn; document.getElementById("relatedTitle").innerText = t.relatedTitle; document.getElementById("ordersTitle").innerText = t.ordersTitle; Object.keys(productsData).forEach(key => { const prod = productsData[key]; const el = document.getElementById(`p${prod.id}-title`); if(el) el.innerText = prod.titles[currentLang]; }); if(selectedPageProductId) { document.getElementById("pageProductTitle").innerText = productsData[selectedPageProductId].titles[currentLang]; renderRelatedProducts(selectedPageProductId); } updateCartUI(); updateOrdersUI();
+}
+
 function navigateToProductPage(id) { selectedPageProductId = id; currentImageIndex = 0; const product = productsData[id]; document.getElementById("pageProductTitle").innerText = product.titles[currentLang]; document.getElementById("pageProductPrice").innerText = "650 EGP"; updateSliderUI(); renderRelatedProducts(id); document.getElementById("mainShopPage").style.display = "none"; document.getElementById("independentProductPage").classList.add("active"); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 function updateSliderUI() { const product = productsData[selectedPageProductId]; if (!product || !product.images || product.images.length === 0) return; document.getElementById("pageProductImg").src = product.images[currentImageIndex]; const dotsContainer = document.getElementById("sliderDotsContainer"); dotsContainer.innerHTML = ""; product.images.forEach((img, index) => { dotsContainer.innerHTML += `<span class="slider-dot ${index === currentImageIndex ? 'active' : ''}" onclick="jumpToImage(${index})"></span>`; }); }
 function changeProductImage(direction) { const product = productsData[selectedPageProductId]; if (!product || !product.images || product.images.length <= 1) return; currentImageIndex += direction; if(currentImageIndex >= product.images.length) currentImageIndex = 0; if(currentImageIndex < 0) currentImageIndex = product.images.length - 1; updateSliderUI(); }
 function jumpToImage(index) { currentImageIndex = index; updateSliderUI(); }
+
 function renderRelatedProducts(currentId) { const container = document.getElementById("relatedCardsContainer"); if(!container) return; container.innerHTML = ""; Object.keys(productsData).forEach(key => { const prod = productsData[key]; if(prod.id !== currentId) { container.innerHTML += `<div class="card"><img src="${prod.images[0]}" onclick="navigateToProductPage(${prod.id})"><div class="card-content"><h3 style="margin: 15px 0 10px 0;">${prod.titles[currentLang]}</h3><div style="font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px;">650 EGP</div></div></div>`; } }); }
 function returnToMainShop() { document.getElementById("independentProductPage").classList.remove("active"); document.getElementById("mainShopPage").style.display = "block"; selectedPageProductId = null; }
 function selectSize(btn) { btn.parentElement.querySelectorAll('.size-opt').forEach(o=>o.classList.remove('active')); btn.classList.add('active'); }
 function toggleCart(open) { const s = document.getElementById("cartSidebar"); if(open) s.classList.add("active"); else s.classList.remove("active"); }
 function selectPaymentMethod(element, methodValue) { element.parentElement.querySelectorAll('.method-badge').forEach(b => b.classList.remove('selected')); element.classList.add('selected'); selectedPaymentType = methodValue; }
-function addProductFromPageToCart(openCart) { const p = productsData[selectedPageProductId]; const size = document.querySelector('.size-opt.active').innerText; cart.push({ id: Date.now(), title: p.titles[currentLang], price: p.price, size: size, paymentMethod: selectedPaymentType }); updateCartUI(); if(openCart) { toggleCart(true); } else { const toast = document.getElementById("toastNotification"); toast.innerText = translations[currentLang].addedSuccess; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2000); } }
-function updateCartUI() { document.getElementById("cartCount").innerText = cart.length; const list = document.getElementById("cartItemsList"); list.innerHTML = ""; let total = 0; cart.forEach(item => { total += item.price; list.innerHTML += `<div class="cart-item"><div><h4>${item.title}</h4><span>${translations[currentLang].sizeWord}: ${item.size} - ${item.price} EGP</span></div><button class="remove-item-btn" onclick="removeItem(${item.id})">×</button></div>`; }); document.getElementById("cartTotalSum").innerText = total + " EGP"; }
-function removeItem(id) { cart = cart.filter(i=>i.id!==id); updateCartUI(); }
-function clearCart() { cart = []; updateCartUI(); }
 
-renderMainShopProducts();
+function addProductFromPageToCart(openCart) { 
+    const p = productsData[selectedPageProductId]; 
+    const size = document.querySelector('.size-opt.active').innerText; 
+    cart.push({ id: Date.now(), productId: p.id, title: p.titles[currentLang], price: p.price, size: size }); 
+    localStorage.setItem('rahal_cart', JSON.stringify(cart));
+    updateCartUI(); 
+    if(openCart) { toggleCart(true); } else { const toast = document.getElementById("toastNotification"); toast.innerText = translations[currentLang].addedSuccess; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2000); } 
+}
+
+function updateCartUI() { 
+    document.getElementById("cartCount").innerText = cart.length; const list = document.getElementById("cartItemsList"); if(!list) return; list.innerHTML = ""; let total = 0; let t = translations[currentLang]; 
+    cart.forEach(item => { 
+        total += item.price; 
+        const matchedProduct = productsData[item.productId];
+        const displayTitle = matchedProduct ? matchedProduct.titles[currentLang] : item.title;
+        list.innerHTML += `<div class="cart-item"><div class="cart-item-header"><span>${displayTitle}</span><span>${item.price} EGP</span></div><div class="cart-item-size">${t.sizeWord}: ${item.size}</div><button class="btn-remove" onclick="removeItem(${item.id})">${t.removeBtn}</button></div>`; 
+    }); 
+    document.getElementById("cartTotalSum").innerText = total + " EGP"; 
+}
+
+function removeItem(id) { cart = cart.filter(i=>i.id!==id); localStorage.setItem('rahal_cart', JSON.stringify(cart)); updateCartUI(); }
+function clearCart() { cart = []; localStorage.removeItem('rahal_cart'); updateCartUI(); }
+
+function animate(){ ctx.clearRect(0,0,canvas.width,canvas.height); stars.forEach(s=> { s.opacity += s.speed; if(s.opacity>=1||s.opacity<=0.05) s.speed*=-1; ctx.beginPath(); ctx.arc(s.x,s.y,s.radius,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${s.opacity})`; ctx.fill(); }); requestAnimationFrame(animate); }
+
+renderMainShopProducts(); 
+animate(); 
+updateCartUI();
+updateOrdersUI();
 </script>
 </body>
 </html>
