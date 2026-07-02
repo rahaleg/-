@@ -226,11 +226,35 @@ for(let i=0; i<2500; i++){
   stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, radius:Math.random()*1.6, opacity:Math.random(), speed:(Math.random()*0.015)+0.005}); 
 }
 
-const productsData = {
-  1: { id: 1, price: 650, images: ["shirt1_1.jpg", "shirt1_2.jpg", "shirt1_3.jpg", "shirt1_4.jpg", "shirt1_5.jpg"], titles: { en: "The Starry Journey Tee", ar: "تيشيرت ليلة نجوم راحل / فان جوخ أوفرسايز" } },
-  2: { id: 2, price: 650, images: ["shirt2_1.jpg", "shirt2_2.jpg", "shirt2_3.jpg", "shirt2_4.jpg", "shirt2_5.jpg"], titles: { en: "The Money Master Tee", ar: "تيشيرت العملة النقدية أوفرسايز" } },
-  3: { id: 3, price: 650, images: ["shirt3_1.jpg", "shirt3_2.jpg", "shirt3_3.jpg", "shirt3_4.jpg"], titles: { en: "The Lucky Ace Tee", ar: "تيشيرت ورقة الحظ أوفرسايز" } }
-};
+// ------------------------------------------------
+// التعديل الجديد: قراءة البيانات من ملف JSON
+// ------------------------------------------------
+let productsData = {};
+
+async function loadProducts() {
+    try {
+        const response = await fetch('products.json');
+        const data = await response.json();
+        
+        data.forEach(item => {
+            productsData[item.id] = item;
+        });
+
+        // تشغيل الواجهة بعد تحميل البيانات بنجاح
+        renderMainShopProducts();
+        updateCartUI();
+        updateOrdersUI();
+        
+        // لو المستخدم كان واقف في صفحة منتج وعمل ريفريش
+        if (selectedPageProductId) {
+             updateUILanguage();
+        }
+
+    } catch (error) {
+        console.error("خطأ في تحميل المنتجات:", error);
+    }
+}
+// ------------------------------------------------
 
 const translations = {
   en: { langBtn: "العربية", heroDesc: "Keep Going,<br>Your Journey Is Just Beginning", enterBtn: "ENTER STORE", collectionTitle: "NEW COLLECTION", backBtn: "← BACK TO COLLECTION", selectSizeTitle: "Select Size", addToCartBtn: "ADD TO CART", buyNowBtn: "BUY NOW", paymentTitle: "GUARANTEED SAFE CHECKOUT", pay1: "CASH ON DELIVERY", cartTitle: "YOUR CART", formTitle: "Shipping & Contact Details", placeholderName: "Full Name", placeholderPhone: "Phone Number", placeholderAddress: "Shipping Address Details", totalWord: "Total:", submitOrderBtn: "SUBMIT ORDER", clearCartBtn: "CLEAR CART", processing: "PROCESSING...", successAlert: "🎉 Order placed successfully!", errorAlert: "🚨 Error sending order.", sizeWord: "Size", addedSuccess: "🛒 Added to cart!", relatedTitle: "YOU MAY ALSO LIKE", payVisa: "VISA / MASTERCARD", payVodafone: "VODAFONE CASH", ordersTitle: "Order History", orderNum: "Order", emptyOrders: "No previous orders.", cancelOrder: "Cancel Order", removeBtn: "Remove", canceledStatus: "Canceled" },
@@ -250,7 +274,6 @@ window.onscroll = function() {
     }
 };
 
-// 🌟 ميزة إغلاق الشنطة عند الضغط في أي مكان بالخارج
 document.addEventListener("click", function () {
     const s = document.getElementById("cartSidebar");
     if (s.classList.contains("active")) {
@@ -333,7 +356,7 @@ function updateOrdersUI() {
     });
 }
 
-function renderMainShopProducts() { const container = document.getElementById("mainCardsContainer"); if(!container) return; container.innerHTML = ""; Object.keys(productsData).forEach(key => { const prod = productsData[key]; const currentTitle = prod.titles[currentLang]; container.innerHTML += `<div class="card"><img src="${prod.images[0]}" onclick="navigateToProductPage(${prod.id})"><div class="card-content"><h3 id="p${prod.id}-title" style="margin: 15px 0 10px 0;">${currentTitle}</h3><div style="font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px;">650 EGP</div></div></div>`; }); }
+function renderMainShopProducts() { const container = document.getElementById("mainCardsContainer"); if(!container) return; container.innerHTML = ""; Object.keys(productsData).forEach(key => { const prod = productsData[key]; const currentTitle = prod.titles[currentLang]; container.innerHTML += `<div class="card"><img src="${prod.images[0]}" onclick="navigateToProductPage(${prod.id})"><div class="card-content"><h3 id="p${prod.id}-title" style="margin: 15px 0 10px 0;">${currentTitle}</h3><div style="font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px;">${prod.price} EGP</div></div></div>`; }); }
 function toggleLanguage() { currentLang = currentLang === "en" ? "ar" : "en"; document.body.classList.toggle("rtl", currentLang === "ar"); updateUILanguage(); }
 
 function updateUILanguage() { 
@@ -341,12 +364,12 @@ function updateUILanguage() {
     Object.keys(productsData).forEach(key => { const prod = productsData[key]; const el = document.getElementById(`p${prod.id}-title`); if(el) el.innerText = prod.titles[currentLang]; }); if(selectedPageProductId) { document.getElementById("pageProductTitle").innerText = productsData[selectedPageProductId].titles[currentLang]; renderRelatedProducts(selectedPageProductId); } updateCartUI(); updateOrdersUI();
 }
 
-function navigateToProductPage(id) { selectedPageProductId = id; currentImageIndex = 0; const product = productsData[id]; document.getElementById("pageProductTitle").innerText = product.titles[currentLang]; document.getElementById("pageProductPrice").innerText = "650 EGP"; updateSliderUI(); renderRelatedProducts(id); document.getElementById("mainShopPage").style.display = "none"; document.getElementById("independentProductPage").classList.add("active"); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function navigateToProductPage(id) { selectedPageProductId = id; currentImageIndex = 0; const product = productsData[id]; document.getElementById("pageProductTitle").innerText = product.titles[currentLang]; document.getElementById("pageProductPrice").innerText = product.price + " EGP"; updateSliderUI(); renderRelatedProducts(id); document.getElementById("mainShopPage").style.display = "none"; document.getElementById("independentProductPage").classList.add("active"); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 function updateSliderUI() { const product = productsData[selectedPageProductId]; if (!product || !product.images || product.images.length === 0) return; document.getElementById("pageProductImg").src = product.images[currentImageIndex]; const dotsContainer = document.getElementById("sliderDotsContainer"); dotsContainer.innerHTML = ""; product.images.forEach((img, index) => { dotsContainer.innerHTML += `<span class="slider-dot ${index === currentImageIndex ? 'active' : ''}" onclick="jumpToImage(${index})"></span>`; }); }
 function changeProductImage(direction) { const product = productsData[selectedPageProductId]; if (!product || !product.images || product.images.length <= 1) return; currentImageIndex += direction; if(currentImageIndex >= product.images.length) currentImageIndex = 0; if(currentImageIndex < 0) currentImageIndex = product.images.length - 1; updateSliderUI(); }
 function jumpToImage(index) { currentImageIndex = index; updateSliderUI(); }
 
-function renderRelatedProducts(currentId) { const container = document.getElementById("relatedCardsContainer"); if(!container) return; container.innerHTML = ""; Object.keys(productsData).forEach(key => { const prod = productsData[key]; if(prod.id !== currentId) { container.innerHTML += `<div class="card"><img src="${prod.images[0]}" onclick="navigateToProductPage(${prod.id})"><div class="card-content"><h3 style="margin: 15px 0 10px 0;">${prod.titles[currentLang]}</h3><div style="font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px;">650 EGP</div></div></div>`; } }); }
+function renderRelatedProducts(currentId) { const container = document.getElementById("relatedCardsContainer"); if(!container) return; container.innerHTML = ""; Object.keys(productsData).forEach(key => { const prod = productsData[key]; if(prod.id !== currentId) { container.innerHTML += `<div class="card"><img src="${prod.images[0]}" onclick="navigateToProductPage(${prod.id})"><div class="card-content"><h3 style="margin: 15px 0 10px 0;">${prod.titles[currentLang]}</h3><div style="font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 15px;">${prod.price} EGP</div></div></div>`; } }); }
 function returnToMainShop() { document.getElementById("independentProductPage").classList.remove("active"); document.getElementById("mainShopPage").style.display = "block"; selectedPageProductId = null; }
 function selectSize(btn) { btn.parentElement.querySelectorAll('.size-opt').forEach(o=>o.classList.remove('active')); btn.classList.add('active'); }
 
@@ -390,10 +413,11 @@ function clearCart() { cart = []; localStorage.removeItem('rahal_cart'); updateC
 
 function animate(){ ctx.clearRect(0,0,canvas.width,canvas.height); stars.forEach(s=> { s.opacity += s.speed; if(s.opacity>=1||s.opacity<=0.05) s.speed*=-1; ctx.beginPath(); ctx.arc(s.x,s.y,s.radius,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${s.opacity})`; ctx.fill(); }); requestAnimationFrame(animate); }
 
-renderMainShopProducts(); 
+// تشغيل الخلفية المتحركة مباشرة
 animate(); 
-updateCartUI();
-updateOrdersUI();
+// طلب البيانات من ملف JSON
+loadProducts();
+
 </script>
 </body>
 </html>
