@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "price": 650,
+    "images": ["shirt1_1.jpg", "shirt1_2.jpg", "shirt1_3.jpg", "shirt1_4.jpg", "shirt1_5.jpg"],
+    "titles": { "en": "The Starry Journey Tee", "ar": "تيشيرت ليلة نجوم راحل / فان جوخ أوفرسايز" }
+  },
+  {
+    "id": 2,
+    "price": 650,
+    "images": ["shirt2_1.jpg", "shirt2_2.jpg", "shirt2_3.jpg", "shirt2_4.jpg", "shirt2_5.jpg"],
+    "titles": { "en": "The Money Master Tee", "ar": "تيشيرت العملة النقدية أوفرسايز" }
+  },
+  {
+    "id": 3,
+    "price": 650,
+    "images": ["shirt3_1.jpg", "shirt3_2.jpg", "shirt3_3.jpg", "shirt3_4.jpg"],
+    "titles": { "en": "The Lucky Ace Tee", "ar": "تيشيرت ورقة الحظ أوفرسايز" }
+  }
+]
